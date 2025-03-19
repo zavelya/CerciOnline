@@ -44,11 +44,10 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (::webView.isInitialized && webView.canGoBack()) {
-                    webView.goBack()  // WebView içinde geri git
+                    webView.goBack()
                 } else {
                     finish()
                 }
@@ -72,9 +71,9 @@ fun WebViewContent(modifier: Modifier = Modifier, onWebViewReady: (WebView) -> U
                             if (request?.url?.host == "www.cercionline.com") {
                                 return false // WebView içinde açsın diye
                             } else {
-                                val intent = Intent(Intent.ACTION_VIEW, request?.url)// Diğer tüm bağlantıları dış tarayıcıda açsın
+                                val intent = Intent(Intent.ACTION_VIEW, request?.url) // Diğer tüm bağlantıları dış tarayıcıda açsın
                                 context.startActivity(intent)
-                                return true // WebView içinde açma
+                                return true // WebView içinde açma harici tarayıcıda aç
                             }
                         }
 
@@ -83,12 +82,20 @@ fun WebViewContent(modifier: Modifier = Modifier, onWebViewReady: (WebView) -> U
                         }
 
                         override fun onPageFinished(view: WebView?, url: String?) {
+                            super.onPageFinished(view, url)
                             isLoading = false
+                            view?.evaluateJavascript(
+                                """
+                                (function() {
+                                    let elements = document.querySelectorAll('.homeFooter');
+                                    elements.forEach(el => el.style.display = 'none');
+                                })
+                                ();
+                                """.trimIndent()
+                            ) {}
                         }
                     }
                     loadUrl("https://www.cercionline.com/")
-
-
                     onWebViewReady(this)
                 }
             },
@@ -100,7 +107,7 @@ fun WebViewContent(modifier: Modifier = Modifier, onWebViewReady: (WebView) -> U
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.White),
-                contentAlignment = Alignment.Center //
+                contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
