@@ -84,6 +84,8 @@ fun WebViewContent(modifier: Modifier = Modifier, onWebViewReady: (WebView) -> U
                         override fun onPageFinished(view: WebView?, url: String?) {
                             super.onPageFinished(view, url)
                             isLoading = false
+                            val jsCode = "document.querySelector('.mobilTicimaxLogo').remove();"
+                            view?.evaluateJavascript(jsCode, null)
                             view?.evaluateJavascript(
                                 """
                                 (function() {
